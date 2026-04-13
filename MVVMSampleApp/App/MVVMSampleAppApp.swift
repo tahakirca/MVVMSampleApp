@@ -8,9 +8,7 @@ struct MVVMSampleAppApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                UserListEntryPoint.make(
-                    userService: container.userService
-                ) { user in
+                container.makeUserListView { user in
                     selectedUser = user
                 }
                 .navigationDestination(item: $selectedUser) { user in
