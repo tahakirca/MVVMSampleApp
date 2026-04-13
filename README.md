@@ -88,22 +88,92 @@ enum UserListEntryPoint {
 - The EntryPoint is the single place that wires a feature together
 - The App calls `EntryPoint.make(...)` and passes the required protocols
 
-## Testing
+## HTTPClient
 
-ViewModels are easy to test because they depend on protocols:
+A lightweight async/await wrapper around URLSession. No third-party dependencies.
 
 ```swift
-let service = MockUserService()
-service.usersToReturn = [User(id: 1, name: "Taha", ...)]
+final class HTTPClient: Sendable {
+    private let session: URLSession
+    private let decoder: JSONDecoder
 
-let viewModel = UserListViewModel(userService: service)
-viewModel.loadUsers()
+    func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
+        var request = URLRequest(url: endpoint.url)
+        request.httpMethod = endpoint.method
 
-// Assert state changes
-#expect(viewModel.users.count == 1)
+        let (data, response) = try await session.data(for: request)
+
+        guard let http = response as? HTTPURLResponse,
+              (200..<300).contains(http.statusCode) else {
+            throw NetworkError.serverError(statusCode: http.statusCode)
+        }
+
+        return try decoder.decode(T.self, from: data)
+    }
+}
 ```
 
-No network calls, no real dependencies — just a mock that conforms to the same protocol.
+Endpoints are defined as simple structs conforming to the `Endpoint` protocol:
+
+```swift
+struct GetUsersEndpoint: Endpoint {
+    var path: String { "/users" }
+}
+
+struct GetPostsEndpoint: Endpoint {
+    let userId: Int
+    var path: String { "/users/\(userId)/posts" }
+}
+```
+
+The base URL and HTTP method have sensible defaults — override only when needed.
+
+## Testing
+
+ViewModels are easy to test because they depend on **protocols**, not concrete types. Swap the real service with a mock:
+
+```swift
+@MainActor
+final class MockUserService: UserService {
+    var usersToReturn: [User] = []
+    var errorToThrow: Error?
+
+    func fetchUsers() async throws -> [User] {
+        if let error = errorToThrow { throw error }
+        return usersToReturn
+    }
+}
+```
+
+Then test state changes directly:
+
+```swift
+@Test("loads users successfully")
+@MainActor
+func loadUsersSuccess() async {
+    let service = MockUserService()
+    service.usersToReturn = [
+        User(id: 1, name: "Taha", email: "taha@test.com", phone: "123"),
+    ]
+
+    let viewModel = UserListViewModel(userService: service)
+    viewModel.loadUsers()
+    await Task.yield()
+
+    #expect(viewModel.users.count == 1)
+    #expect(viewModel.isLoading == false)
+    #expect(viewModel.errorMessage == nil)
+}
+```
+
+No network calls, no real dependencies — just a mock that conforms to the same protocol. Tests run in milliseconds.
+
+**What's tested:**
+- Loading data successfully
+- Error handling on failure
+- Initial empty state
+- Task cancellation on reload
+- Correct user data passed to detail screen
 
 ## Project Structure
 
