@@ -1,0 +1,28 @@
+name: MVVMSampleApp
+options:
+  bundleIdPrefix: com.sample
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+
+targets:
+  MVVMSampleApp:
+    type: application
+    platform: iOS
+    sources:
+      - MVVMSampleApp
+    settings:
+      SWIFT_VERSION: "5.9"
+      GENERATE_INFOPLIST_FILE: YES
+      INFOPLIST_KEY_UILaunchScreen_Generation: YES
+
+  MVVMSampleAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - MVVMSampleAppTests
+    dependencies:
+      - target: MVVMSampleApp
+    settings:
+      SWIFT_VERSION: "5.9"
+      GENERATE_INFOPLIST_FILE: YES
