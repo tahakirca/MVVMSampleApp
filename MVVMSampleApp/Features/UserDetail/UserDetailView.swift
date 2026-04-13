@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct UserDetailView: View {
-    var viewModel: UserDetailViewModel
+    @State var viewModel: UserDetailViewModel
 
     var body: some View {
         Group {

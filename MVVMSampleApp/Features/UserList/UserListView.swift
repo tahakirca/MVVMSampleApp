@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct UserListView: View {
-    var viewModel: UserListViewModel
+    @State var viewModel: UserListViewModel
     let onUserTapped: (User) -> Void
 
     var body: some View {
