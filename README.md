@@ -1,6 +1,6 @@
 # MVVM + Clean Architecture + Factory Pattern
 
-A sample iOS project demonstrating **MVVM**, **Clean Architecture**, and the **Factory Pattern** with SwiftUI.
+A sample iOS project demonstrating **MVVM**, **Clean Architecture**, and the **Factory Pattern** with SwiftUI, including basic networking, mock services, and unit tests.
 
 ## Architecture Overview
 
