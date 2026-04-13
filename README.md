@@ -2,6 +2,19 @@
 
 A sample iOS project demonstrating **MVVM**, **Clean Architecture**, and the **Factory Pattern** with SwiftUI, including basic networking, mock services, and unit tests.
 
+## Why Clean Architecture?
+
+MVVM alone only separates View from logic. It doesn't answer: where does networking go? How do you swap a real API with a mock? How do you prevent your UI layer from knowing about URLSession?
+
+Clean Architecture adds **layer separation**:
+- **Domain** defines *what* the app can do (protocols + models) — no frameworks, no imports
+- **Data** defines *how* it's done (networking, persistence) — implements Domain protocols
+- **Features** only talk to Domain — they never know if data comes from a server, cache, or mock
+
+This means you can test ViewModels without a network, swap implementations without touching UI, and onboard new developers who can work on a feature without understanding the entire codebase.
+
+The **Factory Pattern** (EntryPoint) ties it together — each screen declares what protocols it needs, and the Composition Root provides the concrete implementations.
+
 ## Architecture Overview
 
 ```
